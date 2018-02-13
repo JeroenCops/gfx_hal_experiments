@@ -4,3 +4,17 @@ version = "0.1.0"
 authors = ["JeroenCops <jernncops@live.be>"]
 
 [dependencies]
+env_logger = "0.5"
+winit = "0.11"
+image = "0.15"
+cgmath = "0.15"
+time = "0.1.38"
+glsl-to-spirv = "0.1"
+gfx-hal = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4" }
+gfx-backend-vulkan = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4", features = ["glsl-to-spirv"] }
+
+[target.'cfg(windows)'.dependencies]
+gfx-backend-dx12 = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4" , optional = true}
+
+[target.'cfg(target_os = "macos")'.dependencies]
+gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4" , optional = true}
