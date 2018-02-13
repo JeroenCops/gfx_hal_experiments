@@ -1,0 +1,6 @@
+[package]
+name = "gfx_hal_experiments"
+version = "0.1.0"
+authors = ["JeroenCops <jernncops@live.be>"]
+
+[dependencies]
