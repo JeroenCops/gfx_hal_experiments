@@ -3,18 +3,17 @@ name = "gfx_hal_experiments"
 version = "0.1.0"
 authors = ["JeroenCops <jernncops@live.be>"]
 
+[features]
+default = []
+dx12 = ["gfx-backend-dx12"]
+vulkan = ["gfx-backend-vulkan"]
+
 [dependencies]
-env_logger = "0.5"
-winit = "0.11"
-image = "0.15"
-cgmath = "0.15"
-time = "0.1.38"
-glsl-to-spirv = "0.1"
-gfx-hal = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4" }
-gfx-backend-vulkan = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4", features = ["glsl-to-spirv"] }
+winit = "0.12"
+
+gfx-memory = { git = "https://github.com/gfx-rs/gfx-memory.git" }
+gfx-hal = { git = "https://github.com/gfx-rs/gfx.git" }
+gfx-backend-vulkan = { git = "https://github.com/gfx-rs/gfx.git", optional = true, features = ["glsl-to-spirv"] }
 
 [target.'cfg(windows)'.dependencies]
-gfx-backend-dx12 = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4" , optional = true}
-
-[target.'cfg(target_os = "macos")'.dependencies]
-gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx.git", rev= "e70dec4" , optional = true}
+gfx-backend-dx12 = { git = "https://github.com/gfx-rs/gfx.git", optional = true }
