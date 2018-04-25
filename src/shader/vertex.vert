@@ -7,6 +7,6 @@ layout (push_constant) uniform PushConsts {
 } pushConsts;
 
 void main() {
-  gl_PointSize = 50.0;
+  gl_PointSize = pushConsts.uPointSize;
   gl_Position = vec4(a_pos, 1.0);
 }

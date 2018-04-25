@@ -10,6 +10,7 @@ vulkan = ["gfx-backend-vulkan"]
 
 [dependencies]
 winit = "0.12"
+bincode = "1.0"
 
 gfx-memory = { git = "https://github.com/gfx-rs/gfx-memory.git" }
 gfx-hal = { git = "https://github.com/gfx-rs/gfx.git" }

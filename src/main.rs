@@ -5,6 +5,7 @@ extern crate gfx_backend_vulkan as back;
 extern crate gfx_hal as hal;
 
 extern crate winit;
+extern crate bincode;
 
 use hal::{buffer, format, command, format as f, image as i, memory as m, pass, pso, pool};
 use hal::{Device, Instance, Surface, IndexType, PhysicalDevice, Swapchain};
@@ -38,7 +39,20 @@ const VERTICES: [Vertex; 2] = [
     Vertex { a_Pos: [ 0.5, -0.5, 0.0 ] },
 ];
 
-const VERTEX_SIZE: u32 = 50;
+const VERTEX_SIZE: f32 = 50.0;
+
+fn data(size: f32) -> Vec<u32> {
+    use ::bincode::serialize;
+
+    let data = serialize(&VERTEX_SIZE).unwrap();
+
+    data.chunks(4).map(|d| {
+            ((d[0] as u32) << 0) |
+            ((d[1] as u32) << 8) |
+            ((d[2] as u32) << 16) |
+            ((d[3] as u32) << 24)
+    }).collect()
+}
 
 const CLEAR_COLOR: [f32; 4] = [1.0, 1.0, 1.0, 1.0];
 
@@ -46,7 +60,7 @@ fn main() {
     let mut events_loop = winit::EventsLoop::new();
     let window_builder = winit::WindowBuilder::new()
                             .with_dimensions(500, 500)
-                            .with_title("Triangle Example".to_string());
+                            .with_title("Gfx Example".to_string());
     let window = window_builder.build(&events_loop).unwrap();
 
     let instance = back::Instance::create("Gfx Render", 1);
@@ -312,7 +326,9 @@ fn main() {
             // Update dynamic scissor state
             cmd_buffer.set_scissors(0, &[viewport.rect]);
             // Update Push Constants
-            cmd_buffer.push_graphics_constants(&pipeline_layout, pso::ShaderStageFlags::VERTEX, 0, &[VERTEX_SIZE]);
+            // you can pass any raw data, just need to by multiple of 4 bytes
+            // that's why u32
+            cmd_buffer.push_graphics_constants(&pipeline_layout, pso::ShaderStageFlags::VERTEX, 0, &data(VERTEX_SIZE)[..]);
             // Bind the rendering pipeline
             cmd_buffer.bind_graphics_pipeline(&pipeline[0].as_ref().unwrap());
             // Bind descriptor sets describing shader binding points
@@ -342,4 +358,33 @@ fn main() {
         device.wait_for_fence(&frame_fence, !0);
         swap_chain.present(&mut queue, &[]);
     }
+
+    device.destroy_command_pool(command_pool.downgrade());
+    device.destroy_descriptor_pool(descriptor_pool);
+    device.destroy_descriptor_set_layout(set_layout);
+
+    device.destroy_buffer(vertex_buffer);
+
+    device.destroy_fence(frame_fence);
+    device.destroy_semaphore(frame_semaphore);
+    device.destroy_pipeline_layout(pipeline_layout);
+    device.destroy_render_pass(render_pass);
+
+    device.free_memory(vertex_memory);
+
+    for pipeline in pipeline {
+    if let Ok(pipeline) = pipeline {
+        device.destroy_graphics_pipeline(pipeline);
+        }
+    }
+
+    for framebuffer in framebuffers {
+        device.destroy_framebuffer(framebuffer);
+    }
+
+    for (_, rtv) in frame_images {
+        device.destroy_image_view(rtv);
+    }
+
+    device.destroy_swapchain(swap_chain);
 }
